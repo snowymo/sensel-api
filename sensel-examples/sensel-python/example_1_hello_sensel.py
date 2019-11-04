@@ -36,11 +36,11 @@ if __name__ == "__main__":
     if handle != None:
         (error, info) = sensel.getSensorInfo(handle)
 
-        print "\nSensel Device: "+str(bytearray(device_list.devices[0].serial_num))
-        print "Width: "+str(info.width)+"mm"
-        print "Height: "+str(info.height)+"mm"
-        print "Cols: "+str(info.num_cols)
-        print "Rows: "+str(info.num_rows)
+        print ("\nSensel Device: "+str(bytearray(device_list.devices[0].serial_num)))
+        print ("Width: "+str(info.width)+"mm")
+        print ("Height: "+str(info.height)+"mm")
+        print ("Cols: "+str(info.num_cols))
+        print ("Rows: "+str(info.num_rows))
         error = sensel.close(handle)
-        raw_input("Press Enter to exit...")
+        input("Press Enter to exit...")
     
