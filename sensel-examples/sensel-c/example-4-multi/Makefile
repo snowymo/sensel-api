@@ -1,6 +1,6 @@
 NAME = senselmulti
 
-SRC = main.c
+SRC = main.cpp
 
 SRCPRFX = $(addprefix src/, $(SRC))
 

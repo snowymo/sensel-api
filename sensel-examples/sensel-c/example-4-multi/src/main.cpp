@@ -34,19 +34,22 @@
 #include "sensel.h"
 #include "sensel_device.h"
 
+#include "../SenselOpenCV.h"
+
+
 static const char* CONTACT_STATE_STRING[] = { "CONTACT_INVALID","CONTACT_START", "CONTACT_MOVE", "CONTACT_END" };
 static bool enter_pressed = false;
 
-#ifdef WIN32
-DWORD WINAPI waitForEnter()
-#else
-void * waitForEnter()
-#endif
-{
-    getchar();
-    enter_pressed = true;
-    return 0;
-}
+//#ifdef WIN32
+//static DWORD WINAPI waitForEnter()
+//#else
+//void * waitForEnter()
+//#endif
+//{
+//    getchar();
+//    enter_pressed = true;
+//    return 0;
+//}
 
 int main(int argc, char **argv)
 {
@@ -67,6 +70,8 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+    SenselSensorInfo *info = new SenselSensorInfo;
+    SenselOpenCV* test = new SenselOpenCV;
 	//Open all Sensel devices by the id in the SenselDeviceList, handle initialized 
 	for (int i = 0; i < list.num_devices; i++) {
 		senselOpenDeviceByID(&handle[i], list.devices[i].idx);
@@ -77,18 +82,26 @@ int main(int argc, char **argv)
 		senselAllocateFrameData(handle[i], &frame[i]);
 		//Start scanning the Sensel device
 		senselStartScanning(handle[i]);
+
+        senselGetSensorInfo(handle[i], info);
+        test->addDevice(info->width, info->height);
     }
     
-    fprintf(stdout, "Press Enter to exit example\n");
-	#ifdef WIN32
-		HANDLE thread = CreateThread(NULL, 0, waitForEnter, NULL, 0, NULL);
-	#else
-		pthread_t thread;
-		pthread_create(&thread, NULL, waitForEnter, NULL);
-	#endif
+ //   fprintf(stdout, "Press Enter to exit example\n");
+	//#ifdef WIN32
+	//	HANDLE thread = CreateThread(NULL, 0, waitForEnter, NULL, 0, NULL);
+	//#else
+	//	pthread_t thread;
+	//	pthread_create(&thread, NULL, waitForEnter, NULL);
+	//#endif
+
+    
+    
+    
     
 	while (!enter_pressed)
 	{
+        test->resetImage();
 		unsigned int num_frames = 0;
 		//Read all available data from the Sensel device
 		for (int i = 0; i < list.num_devices; i++) {
@@ -101,11 +114,14 @@ int main(int argc, char **argv)
 				senselGetFrame(handle[i], frame[i]);
 				//Print out contact data
 				if (frame[i]->n_contacts > 0) {
+                    // show
+                    test->drawPressure(i, frame[i]->force_array);
 					fprintf(stdout, "\nMorph %d Num Contacts: %d\n", i, frame[i]->n_contacts);
 					for (int c = 0; c < frame[i]->n_contacts; c++)
 					{
+                        test->drawContact(i, &frame[i]->contacts[c]);
 						unsigned int state = frame[i]->contacts[c].state;
-						fprintf(stdout, "Contact ID: %d State: %s\n", frame[i]->contacts[c].id, CONTACT_STATE_STRING[state]);
+						fprintf(stdout, "Contact ID: %d State: %s X:%f Y:%f \n", frame[i]->contacts[c].id, CONTACT_STATE_STRING[state], frame[i]->contacts[c].x_pos, frame[i]->contacts[c].y_pos);
 
 						//Turn on LED for CONTACT_START
 						if (state == CONTACT_START) {
@@ -119,6 +135,7 @@ int main(int argc, char **argv)
 				}
 			}
 		}
+        test->showImage();
 	}
 	return 0;
 }
