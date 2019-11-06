@@ -17,7 +17,7 @@ void SenselOpenCV::addDevice(int width, int height)
 
 void SenselOpenCV::drawPressure(int index, float * forces)
 {
-    //memcpy_s(pressureMats[index].data, pressureMats[index].cols * pressureMats[index].rows * sizeof(float), forces, pressureMats[index].cols * pressureMats[index].rows * sizeof(float));
+    memcpy_s(pressureMats[index].data, pressureMats[index].cols * pressureMats[index].rows * sizeof(float), forces, pressureMats[index].cols * pressureMats[index].rows * sizeof(float));
     
 }
 

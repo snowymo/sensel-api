@@ -10,8 +10,8 @@
       <AdditionalIncludeDirectories>D:\Projects\Sensel\SenselLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>D:\Projects\Sensel\SenselLib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>D:\Projects\Sensel\SenselLib\x64\LibSensel.lib;D:\Projects\Sensel\SenselLib\x64\LibSenselDecompress.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Projects\sensel-api\sensel-lib\build\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LibSensel.lib;D:\Projects\Sensel\SenselLib\x64\LibSenselDecompress.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

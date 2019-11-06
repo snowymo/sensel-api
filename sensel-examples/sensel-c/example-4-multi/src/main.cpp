@@ -21,7 +21,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 ******************************************************************************************/
-
+#include "../tcpConnection.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +35,6 @@
 #include "sensel_device.h"
 
 #include "../SenselOpenCV.h"
-
 
 static const char* CONTACT_STATE_STRING[] = { "CONTACT_INVALID","CONTACT_START", "CONTACT_MOVE", "CONTACT_END" };
 static bool enter_pressed = false;
@@ -72,6 +71,7 @@ int main(int argc, char **argv)
 
     SenselSensorInfo *info = new SenselSensorInfo;
     SenselOpenCV* test = new SenselOpenCV;
+    tcpClientSetup();
 	//Open all Sensel devices by the id in the SenselDeviceList, handle initialized 
 	for (int i = 0; i < list.num_devices; i++) {
 		senselOpenDeviceByID(&handle[i], list.devices[i].idx);
@@ -94,13 +94,10 @@ int main(int argc, char **argv)
 	//	pthread_t thread;
 	//	pthread_create(&thread, NULL, waitForEnter, NULL);
 	//#endif
-
-    
-    
-    
     
 	while (!enter_pressed)
 	{
+        std::string msg = "";
         test->resetImage();
 		unsigned int num_frames = 0;
 		//Read all available data from the Sensel device
@@ -108,10 +105,14 @@ int main(int argc, char **argv)
 			senselReadSensor(handle[i]);
 			//Get number of frames available in the data read from the sensor
 			senselGetNumAvailableFrames(handle[i], &num_frames);
+            std::string curDevice;
 			for (unsigned int f = 0; f < num_frames; f++)
 			{
 				//Read one frame of data
 				senselGetFrame(handle[i], frame[i]);
+                // stop when 5
+                if (frame[i]->n_contacts == 6)
+                    enter_pressed = true;
 				//Print out contact data
 				if (frame[i]->n_contacts > 0) {
                     // show
@@ -133,9 +134,13 @@ int main(int argc, char **argv)
 						}
 					}
 				}
+                curDevice = std::to_string(frame[i]->n_contacts);
 			}
+            msg += curDevice + " ";
 		}
         test->showImage();
+        tcpSendMsg(msg);
 	}
+    tcpClose();
 	return 0;
 }
