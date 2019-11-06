@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 				//Read one frame of data
 				senselGetFrame(handle[i], frame[i]);
                 // stop when 5
-                if (frame[i]->n_contacts == 6)
+                if (frame[i]->n_contacts == 10)
                     enter_pressed = true;
 				//Print out contact data
 				if (frame[i]->n_contacts > 0) {
@@ -132,11 +132,18 @@ int main(int argc, char **argv)
 						else if (state == CONTACT_END) {
 							senselSetLEDBrightness(handle[i], frame[i]->contacts[c].id, 0);
 						}
+                        
 					}
 				}
-                curDevice = std::to_string(frame[i]->n_contacts);
+                if (frame[i]->n_contacts == 5) {
+                    curDevice = "";
+                    for (int c = 0; c < frame[i]->n_contacts; c++) {
+                        curDevice += std::to_string(frame[i]->contacts[c].total_force) + " ";
+                    }                    
+                }
+                
 			}
-            msg += curDevice + " ";
+            msg += curDevice.size() > 0 ? ((i == 0) ? "L " : "R ") + curDevice + " " : "";
 		}
         test->showImage();
         tcpSendMsg(msg);
