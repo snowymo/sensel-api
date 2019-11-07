@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>D:\Projects\Sensel\SenselLib\x64;$(ExecutablePath)</ExecutablePath>
+    <_PropertySheetDisplayName>sensel_release</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

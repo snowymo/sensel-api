@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SenselHand.cpp" />
     <ClCompile Include="SenselOpenCV.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="tcpConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SenselHand.h" />
     <ClInclude Include="SenselOpenCV.h" />
     <ClInclude Include="tcpConnection.h" />
   </ItemGroup>
@@ -66,7 +68,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\opencv.props" />
-    <Import Project="..\sensel.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -75,8 +76,8 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\opencv.props" />
-    <Import Project="..\sensel.props" />
+    <Import Project="..\opencv_debug.props" />
+    <Import Project="..\sensel_debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -157,12 +158,12 @@ XCOPY "C:\Program Files\Sensel\SenselLib\x86\LibSenselDecompress.dll" "$(TargetD
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Sensel\SenselLib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;LibSensel.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>XCOPY "C:\Program Files\Sensel\SenselLib\x64\LibSensel.dll" "$(TargetDir)" /Y
-XCOPY "C:\Program Files\Sensel\SenselLib\x64\LibSenselDecompress.dll" "$(TargetDir)" /Y
+      <Command>XCOPY "D:\Projects\Sensel\SenselLib\x64\LibSensel.dll" "$(TargetDir)" /Y
+XCOPY "D:\Projects\Sensel\SenselLib\x64\LibSenselDecompress.dll" "$(TargetDir)" /Y
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

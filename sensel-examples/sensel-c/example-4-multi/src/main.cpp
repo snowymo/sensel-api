@@ -35,6 +35,7 @@
 #include "sensel_device.h"
 
 #include "../SenselOpenCV.h"
+#include "../SenselHand.h"
 
 static const char* CONTACT_STATE_STRING[] = { "CONTACT_INVALID","CONTACT_START", "CONTACT_MOVE", "CONTACT_END" };
 static bool enter_pressed = false;
@@ -86,6 +87,7 @@ int main(int argc, char **argv)
         senselGetSensorInfo(handle[i], info);
         test->addDevice(info->width, info->height);
     }
+    SenselHand* myHand = new SenselHand[2];
     
  //   fprintf(stdout, "Press Enter to exit example\n");
 	//#ifdef WIN32
@@ -94,7 +96,7 @@ int main(int argc, char **argv)
 	//	pthread_t thread;
 	//	pthread_create(&thread, NULL, waitForEnter, NULL);
 	//#endif
-    
+    int mytimer = 0;
 	while (!enter_pressed)
 	{
         std::string msg = "";
@@ -110,19 +112,19 @@ int main(int argc, char **argv)
 			{
 				//Read one frame of data
 				senselGetFrame(handle[i], frame[i]);
-                // stop when 5
+                // stop when 10
                 if (frame[i]->n_contacts == 10)
                     enter_pressed = true;
 				//Print out contact data
 				if (frame[i]->n_contacts > 0) {
                     // show
                     test->drawPressure(i, frame[i]->force_array);
-					fprintf(stdout, "\nMorph %d Num Contacts: %d\n", i, frame[i]->n_contacts);
+					//fprintf(stdout, "\nMorph %d Num Contacts: %d\n", i, frame[i]->n_contacts);
 					for (int c = 0; c < frame[i]->n_contacts; c++)
 					{
                         test->drawContact(i, &frame[i]->contacts[c]);
 						unsigned int state = frame[i]->contacts[c].state;
-						fprintf(stdout, "Contact ID: %d State: %s X:%f Y:%f \n", frame[i]->contacts[c].id, CONTACT_STATE_STRING[state], frame[i]->contacts[c].x_pos, frame[i]->contacts[c].y_pos);
+						//fprintf(stdout, "Contact ID: %d State: %s X:%f Y:%f area:%f\n", frame[i]->contacts[c].id, CONTACT_STATE_STRING[state], frame[i]->contacts[c].x_pos, frame[i]->contacts[c].y_pos, frame[i]->contacts[c].area);
 
 						//Turn on LED for CONTACT_START
 						if (state == CONTACT_START) {
@@ -134,17 +136,26 @@ int main(int argc, char **argv)
 						}
                         
 					}
+                    //
+                    myHand[i].init(i, *frame[i]);
+                    myHand[i].track(i, *frame[i]);
 				}
-                if (frame[i]->n_contacts == 5) {
-                    curDevice = "";
+                //if (frame[i]->n_contacts == 5) {
+/*                    curDevice = "";
                     for (int c = 0; c < frame[i]->n_contacts; c++) {
                         curDevice += std::to_string(frame[i]->contacts[c].total_force) + " ";
-                    }                    
-                }
+                    } */                   
+                //}
                 
 			}
-            msg += curDevice.size() > 0 ? ((i == 0) ? "L " : "R ") + curDevice + " " : "";
+            std::string curHandMsg = myHand[i].toString();
+            msg = curHandMsg == "" ? msg : curHandMsg;
 		}
+        //if (mytimer++ % 50 == 0) {
+        //    mytimer = 0;
+        //    msg += "hello";
+        //}
+            
         test->showImage();
         tcpSendMsg(msg);
 	}
