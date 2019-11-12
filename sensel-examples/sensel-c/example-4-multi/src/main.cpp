@@ -78,14 +78,14 @@ int main(int argc, char **argv)
 		senselOpenDeviceByID(&handle[i], list.devices[i].idx);
 
 		//Set the frame content to scan contact data
-		senselSetFrameContent(handle[i], FRAME_CONTENT_CONTACTS_MASK);
+		senselSetFrameContent(handle[i], FRAME_CONTENT_CONTACTS_MASK| FRAME_CONTENT_PRESSURE_MASK| FRAME_CONTENT_LABELS_MASK);
 		//Allocate a frame of data, must be done before reading frame data
 		senselAllocateFrameData(handle[i], &frame[i]);
 		//Start scanning the Sensel device
 		senselStartScanning(handle[i]);
 
         senselGetSensorInfo(handle[i], info);
-        test->addDevice(info->width, info->height);
+        test->addDevice(info->width, info->height, info->num_cols, info->num_rows);
     }
     SenselHand* myHand = new SenselHand[2];
     

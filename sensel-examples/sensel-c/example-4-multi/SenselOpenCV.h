@@ -16,12 +16,12 @@ public:
     ~SenselOpenCV();
 
 public:
-    void addDevice(int width = 640, int height = 480);
+    void addDevice(int width = 640, int height = 480, int num_cols = 185, int num_rows = 105);
     void drawPressure(int index, float* forces);
     void drawContact(int index, SenselContact* senselContact);
     void showImage();
     void resetImage();
 private:
-    std::vector<cv::Mat> pressureMats;
+    std::vector<cv::Mat> pressureMats, contactMats;
 };
 

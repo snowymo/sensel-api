@@ -37,6 +37,8 @@ void SenselHand::track(int deviceid, SenselFrameData & curFrame)
         for (int i = 0; i < curFrame.n_contacts; i++) {
             SenselContact sc = curFrame.contacts[i];
             // go through the id first
+            //
+            //std::cout << "id" << _fingers[0]._id << "\n";
             //bool sameid = false;
             //for (int j = 0; j < 5; j++) {
             //    if (sc.id == _fingers[j]._id) {
@@ -47,7 +49,7 @@ void SenselHand::track(int deviceid, SenselFrameData & curFrame)
             //        break;
             //    }
             //}
-           // if (!sameid) {
+            //if (!sameid) {
                 // failed to find the contact with the same id
                 // use x and y pos
                 for (int j = 0; j < 5; j++) {
