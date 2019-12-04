@@ -54,6 +54,10 @@ static bool enter_pressed = false;
 
 int main(int argc, char **argv)
 {
+    SenselHand* myHand = new SenselHand[2];
+    myHand[0].setOrientation(DEVICE_ORIEN::vertical);
+    myHand[1].setOrientation(DEVICE_ORIEN::vertical);
+
 	//Handle that references a Sensel device
 	SENSEL_HANDLE handle[SENSEL_MAX_DEVICES] = { NULL };
 	//List of all available Sensel devices
@@ -88,7 +92,6 @@ int main(int argc, char **argv)
         senselGetSensorInfo(handle[i], info);
         test->addDevice(info->width, info->height, info->num_cols, info->num_rows);
     }
-    SenselHand* myHand = new SenselHand[2];
     
  //   fprintf(stdout, "Press Enter to exit example\n");
 	//#ifdef WIN32
@@ -114,17 +117,17 @@ int main(int argc, char **argv)
 				//Read one frame of data
 				senselGetFrame(handle[i], frame[i]);
                 // stop when 10
-                if (frame[i]->n_contacts == 10) {
-                    // check if all the contact are fingers
-                    bool isFinger = true;
-                    for (int c = 0; c < frame[i]->n_contacts && isFinger; c++) {
-                        if (frame[i]->contacts[c].area > 250) {
-                            isFinger = false;
-                        }
-                    }
-                    if(isFinger)
-                        enter_pressed = true;
-                }
+                //if (frame[i]->n_contacts == 10) {
+                //    // check if all the contact are fingers
+                //    bool isFinger = true;
+                //    for (int c = 0; c < frame[i]->n_contacts && isFinger; c++) {
+                //        if (frame[i]->contacts[c].area > 250) {
+                //            isFinger = false;
+                //        }
+                //    }
+                //    if(isFinger)
+                //        enter_pressed = true;
+                //}
                     
 				//Print out contact data
 				

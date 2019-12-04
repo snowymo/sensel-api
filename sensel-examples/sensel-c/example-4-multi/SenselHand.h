@@ -37,6 +37,8 @@ struct KeyEvent {
     KeyEvent(std::string t, char k) { type = t; key = k; }
 };
 
+enum DEVICE_ORIEN { horizontal, vertical };
+
 class SenselHand
 {
 public:
@@ -48,8 +50,10 @@ public:
     void reset(int deviceid, SenselFrameData& curFrame);
     void track(int deviceid, SenselFrameData& curFrame);
     std::string toString();
+    void setOrientation(DEVICE_ORIEN devOri);
 
 private:
+    // we need to support both vertical and horizontal version
     void sortFingers();
 
 private:
@@ -66,5 +70,7 @@ private:
     int _idleCount;
     const int kIdleTime = 10;
     const float kFingerArea = 250;
+    DEVICE_ORIEN _deviceOrientation;
+
 };
 

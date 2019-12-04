@@ -7,6 +7,7 @@ SenselHand::SenselHand()
     _isInit = false;
     _curEvent = KeyEvent();
     _idleCount = 0;
+    _deviceOrientation = DEVICE_ORIEN::horizontal;
 }
 
 
@@ -146,36 +147,103 @@ std::string SenselHand::toString()
     return str;
 }
 
+void SenselHand::setOrientation(DEVICE_ORIEN devOri)
+{
+    _deviceOrientation = devOri;
+}
+
 void SenselHand::sortFingers()
 {
     // figure out it is left hand or right hand
     // if the contact with lowest y is at rightmost, that is left hand
     // things changed if I put it into vertical way
-    float maxy = _fingers[0]._pos_y;
-    int thumbindex = 0;
-    float sumx = _fingers[0]._pos_x;
-    float thumbx = sumx;
-    for (int i = 1; i < 5; i++) {
-        if (_fingers[i]._pos_y > maxy) {
-            maxy = _fingers[i]._pos_y;
-            thumbindex = i;
-            thumbx = _fingers[i]._pos_x;
-        }
-        sumx += _fingers[i]._pos_x;
-    }
-    sumx /= 5;
-    if (thumbx < sumx) {
-        //thumb is at left of the middle of palm
-        _direction = "R";
-    }
-    else
-        _direction = "L";
+    float maxy = _fingers[0]._pos_y, maxx = _fingers[0]._pos_x, minx = _fingers[0]._pos_x;
+    int thumbindex = 0, maxindex = 0, minindex = 0;
+    float sumx = maxx, sumy = maxy;
+    float thumbx = sumx, thumby = sumy;
 
-    // order the fingers from left to right
-    for (int i = 0; i < 5; i++) {
-        for (int j = i + 1; j < 5; j++) {
-            if (_fingers[i]._pos_x > _fingers[j]._pos_x)
-                std::swap(_fingers[i], _fingers[j]);
+    switch (_deviceOrientation) {
+    case DEVICE_ORIEN::horizontal:
+        for (int i = 1; i < 5; i++) {
+            if (_fingers[i]._pos_y > maxy) {
+                maxy = _fingers[i]._pos_y;
+                thumbindex = i;
+                thumbx = _fingers[i]._pos_x;
+            }
+            sumx += _fingers[i]._pos_x;
         }
+        sumx /= 5;
+        if (thumbx < sumx) {
+            //thumb is at left of the middle of palm
+            _direction = "R";
+        }
+        else
+            _direction = "L";
+
+        // order the fingers from left to right
+        for (int i = 0; i < 5; i++) {
+            for (int j = i + 1; j < 5; j++) {
+                if (_fingers[i]._pos_x > _fingers[j]._pos_x)
+                    std::swap(_fingers[i], _fingers[j]);
+            }
+        }
+        break;
+    case DEVICE_ORIEN::vertical:
+    {
+        // check edge first: if average x is larget than width/2, edge on the left
+        bool edgeLeft = false;
+        for (int i = 1; i < 5; i++) {
+            sumx += _fingers[i]._pos_x;
+        }
+        if ((sumx / 5) > (240 / 2)) {
+            // edge on the left
+            edgeLeft = true;
+        }
+        for (int i = 1; i < 5; i++) {
+            // edge on the right: find the largest x, check if its y larger than average of y, if true then "L"
+            // edge on the left: find the smallest x, check if its y larger than average of y, if true then "L"
+            if (_fingers[i]._pos_x > maxx) {
+                maxx = _fingers[i]._pos_x;
+                maxindex = i;
+            }
+            if (_fingers[i]._pos_x < minx) {
+                minx = _fingers[i]._pos_x;
+                minindex = i;
+            }
+            sumy += _fingers[i]._pos_y;
+        }
+        sumy /= 5;
+        if (edgeLeft && _fingers[minindex]._pos_y < sumy) {
+            //thumb is at left of the middle of palm
+            _direction = "R";
+        }
+        else if (edgeLeft && _fingers[minindex]._pos_y >= sumy) {
+            //thumb is at left of the middle of palm
+            _direction = "L";
+        }
+        else if (!edgeLeft && _fingers[maxindex]._pos_y > sumy) {
+            _direction = "R";
+        }
+        else
+            _direction = "L";
+        std::cout << "direction:" << _direction << "\n";
+
+        // order the fingers from left to right
+        for (int i = 0; i < 5; i++) {
+            for (int j = i + 1; j < 5; j++) {
+                if (edgeLeft) {
+                    if (_fingers[i]._pos_y > _fingers[j]._pos_y)
+                        std::swap(_fingers[i], _fingers[j]);
+                }
+                else {
+                    if (_fingers[i]._pos_y < _fingers[j]._pos_y)
+                        std::swap(_fingers[i], _fingers[j]);
+                }
+            }
+        }
+        break;
+    }
+    default:
+        break;
     }
 }
