@@ -36,6 +36,7 @@
 
 #include "../SenselOpenCV.h"
 #include "../SenselHand.h"
+#include <iostream>
 
 static const char* CONTACT_STATE_STRING[] = { "CONTACT_INVALID","CONTACT_START", "CONTACT_MOVE", "CONTACT_END" };
 static bool enter_pressed = false;
@@ -113,8 +114,18 @@ int main(int argc, char **argv)
 				//Read one frame of data
 				senselGetFrame(handle[i], frame[i]);
                 // stop when 10
-                if (frame[i]->n_contacts == 10)
-                    enter_pressed = true;
+                if (frame[i]->n_contacts == 10) {
+                    // check if all the contact are fingers
+                    bool isFinger = true;
+                    for (int c = 0; c < frame[i]->n_contacts && isFinger; c++) {
+                        if (frame[i]->contacts[c].area > 250) {
+                            isFinger = false;
+                        }
+                    }
+                    if(isFinger)
+                        enter_pressed = true;
+                }
+                    
 				//Print out contact data
 				
                 // show
@@ -134,6 +145,8 @@ int main(int argc, char **argv)
 					else if (state == CONTACT_END) {
 						senselSetLEDBrightness(handle[i], frame[i]->contacts[c].id, 0);
 					}
+                    // print the area of the pressure
+                    //std::cout << "area size:" <<  frame[i]->contacts[c].area << "\n";
                         
 				}
                 //

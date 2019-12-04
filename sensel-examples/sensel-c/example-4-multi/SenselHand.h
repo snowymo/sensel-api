@@ -65,5 +65,6 @@ private:
     const float kForceUpThres = 50;
     int _idleCount;
     const int kIdleTime = 10;
+    const float kFingerArea = 250;
 };
 

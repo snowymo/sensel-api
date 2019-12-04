@@ -1,6 +1,6 @@
 #include "SenselHand.h"
 #include <iostream>
-
+#include <vector>
 
 SenselHand::SenselHand()
 {
@@ -16,18 +16,27 @@ SenselHand::~SenselHand()
 
 void SenselHand::init(int deviceid, SenselFrameData & curFrame)
 {
-    if (!_isInit && curFrame.n_contacts == 5) {
+    // treat only fingers as reasonable fingers
+    if (!_isInit && curFrame.n_contacts >= 5) {
+        int nFinger = 0;
+        std::vector<int> indices;
         for (int i = 0; i < curFrame.n_contacts; i++) {
-            if (curFrame.contacts[i].area < kAreaThres)
-                return;
+            if (curFrame.contacts[i].area > kAreaThres && curFrame.contacts[i].area < kFingerArea) {
+                ++nFinger;
+                indices.push_back(i);
+            }                
         }
         // fill the field
-        for (int i = 0; i < curFrame.n_contacts; i++) {
-            _fingers[i] = SenselFinger(curFrame.contacts[i].id, curFrame.contacts[i].x_pos, curFrame.contacts[i].y_pos, curFrame.contacts[i].total_force, curFrame.contacts[i].area);
+        if (nFinger == 5) {
+            int index = 0;
+            for (int i : indices) {
+                _fingers[index++] = SenselFinger(curFrame.contacts[i].id, curFrame.contacts[i].x_pos, curFrame.contacts[i].y_pos, curFrame.contacts[i].total_force, curFrame.contacts[i].area);
+            }
+            sortFingers();
+            _deviceID = deviceid;
+            _isInit = true;
         }
-        sortFingers();
-        _deviceID = deviceid;
-        _isInit = true;
+        
     }
 }
 
