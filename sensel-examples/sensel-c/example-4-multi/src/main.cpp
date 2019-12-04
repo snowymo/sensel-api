@@ -116,30 +116,30 @@ int main(int argc, char **argv)
                 if (frame[i]->n_contacts == 10)
                     enter_pressed = true;
 				//Print out contact data
-				if (frame[i]->n_contacts > 0) {
-                    // show
-                    test->drawPressure(i, frame[i]->force_array);
-					//fprintf(stdout, "\nMorph %d Num Contacts: %d\n", i, frame[i]->n_contacts);
-					for (int c = 0; c < frame[i]->n_contacts; c++)
-					{
-                        test->drawContact(i, &frame[i]->contacts[c]);
-						unsigned int state = frame[i]->contacts[c].state;
-						//fprintf(stdout, "Contact ID: %d State: %s X:%f Y:%f area:%f\n", frame[i]->contacts[c].id, CONTACT_STATE_STRING[state], frame[i]->contacts[c].x_pos, frame[i]->contacts[c].y_pos, frame[i]->contacts[c].area);
+				
+                // show
+                test->drawPressure(i, frame[i]->force_array);
+				//fprintf(stdout, "\nMorph %d Num Contacts: %d\n", i, frame[i]->n_contacts);
+				for (int c = 0; c < frame[i]->n_contacts; c++)
+				{
+                    test->drawContact(i, &frame[i]->contacts[c]);
+					unsigned int state = frame[i]->contacts[c].state;
+					//fprintf(stdout, "Contact ID: %d State: %s X:%f Y:%f area:%f\n", frame[i]->contacts[c].id, CONTACT_STATE_STRING[state], frame[i]->contacts[c].x_pos, frame[i]->contacts[c].y_pos, frame[i]->contacts[c].area);
 
-						//Turn on LED for CONTACT_START
-						if (state == CONTACT_START) {
-							senselSetLEDBrightness(handle[i], frame[i]->contacts[c].id, 100);
-						}
-						//Turn off LED for CONTACT_END
-						else if (state == CONTACT_END) {
-							senselSetLEDBrightness(handle[i], frame[i]->contacts[c].id, 0);
-						}
-                        
+					//Turn on LED for CONTACT_START
+					if (state == CONTACT_START) {
+						senselSetLEDBrightness(handle[i], frame[i]->contacts[c].id, 100);
 					}
-                    //
-                    myHand[i].init(i, *frame[i]);
-                    myHand[i].track(i, *frame[i]);
+					//Turn off LED for CONTACT_END
+					else if (state == CONTACT_END) {
+						senselSetLEDBrightness(handle[i], frame[i]->contacts[c].id, 0);
+					}
+                        
 				}
+                //
+                myHand[i].init(i, *frame[i]);
+                myHand[i].track(i, *frame[i]);
+				
                 //if (frame[i]->n_contacts == 5) {
 /*                    curDevice = "";
                     for (int c = 0; c < frame[i]->n_contacts; c++) {
@@ -151,10 +151,6 @@ int main(int argc, char **argv)
             std::string curHandMsg = myHand[i].toString();
             msg = curHandMsg == "" ? msg : curHandMsg;
 		}
-        //if (mytimer++ % 50 == 0) {
-        //    mytimer = 0;
-        //    msg += "hello";
-        //}
             
         test->showImage();
         tcpSendMsg(msg);

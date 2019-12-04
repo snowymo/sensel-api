@@ -45,6 +45,7 @@ public:
 
 public:
     void init(int deviceid, SenselFrameData& curFrame);
+    void reset(int deviceid, SenselFrameData& curFrame);
     void track(int deviceid, SenselFrameData& curFrame);
     std::string toString();
 
@@ -62,5 +63,7 @@ private:
     KeyEvent _curEvent;
     const float kForceDownThres = 100;
     const float kForceUpThres = 50;
+    int _idleCount;
+    const int kIdleTime = 10;
 };
 

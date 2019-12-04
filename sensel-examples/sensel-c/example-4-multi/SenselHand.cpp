@@ -6,6 +6,7 @@ SenselHand::SenselHand()
 {
     _isInit = false;
     _curEvent = KeyEvent();
+    _idleCount = 0;
 }
 
 
@@ -30,10 +31,27 @@ void SenselHand::init(int deviceid, SenselFrameData & curFrame)
     }
 }
 
+void SenselHand::reset(int deviceid, SenselFrameData & curFrame)
+{
+    // if there is no pressure on the device for 10 frames
+    // reset the fields    
+    if (++_idleCount > kIdleTime) {
+        // reset
+        _isInit = false;
+        _idleCount = 0;
+        std::cout << "reset\n";
+    }    
+}
+
 void SenselHand::track(int deviceid, SenselFrameData & curFrame)
 {
     // check the device id first
     if (_isInit && deviceid == _deviceID) {
+        if (curFrame.n_contacts == 0) {
+            std::cout << "idle time: " << _idleCount << "\n";
+            reset(deviceid, curFrame);
+            return;
+        }
         for (int i = 0; i < curFrame.n_contacts; i++) {
             SenselContact sc = curFrame.contacts[i];
             // go through the id first
@@ -123,6 +141,7 @@ void SenselHand::sortFingers()
 {
     // figure out it is left hand or right hand
     // if the contact with lowest y is at rightmost, that is left hand
+    // things changed if I put it into vertical way
     float maxy = _fingers[0]._pos_y;
     int thumbindex = 0;
     float sumx = _fingers[0]._pos_x;
