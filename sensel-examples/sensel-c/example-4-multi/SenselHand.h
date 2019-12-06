@@ -60,16 +60,16 @@ private:
     std::string _direction;
     SenselFinger _fingers[5];
     bool _isInit;
-    const float kAreaThres = 45;
+    const float kAreaThres = 22;
     const float kDisThres = 10;
     int _deviceID;
     const std::string kMapping = "q34tbnu90[";
     KeyEvent _curEvent;
-    const float kForceDownThres = 100;
+    const float kForceDownThres = 70;
     const float kForceUpThres = 50;
     int _idleCount;
     const int kIdleTime = 10;
-    const float kFingerArea = 250;
+    const float kFingerArea = 500;
     DEVICE_ORIEN _deviceOrientation;
 
 };

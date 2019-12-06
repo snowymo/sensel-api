@@ -22,10 +22,14 @@ void SenselHand::init(int deviceid, SenselFrameData & curFrame)
         int nFinger = 0;
         std::vector<int> indices;
         for (int i = 0; i < curFrame.n_contacts; i++) {
+            
             if (curFrame.contacts[i].area > kAreaThres && curFrame.contacts[i].area < kFingerArea) {
                 ++nFinger;
                 indices.push_back(i);
-            }                
+            }
+            else {
+                std::cout << "area: " << curFrame.contacts[i].area << "\n";
+            }
         }
         // fill the field
         if (nFinger == 5) {
@@ -63,6 +67,7 @@ void SenselHand::track(int deviceid, SenselFrameData & curFrame)
             return;
         }
         for (int i = 0; i < curFrame.n_contacts; i++) {
+            _idleCount = 0;
             SenselContact sc = curFrame.contacts[i];
             // go through the id first
             //
