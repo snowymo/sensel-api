@@ -6,6 +6,7 @@
 #include "sensel.h"
 #include "sensel_device.h"
 #include <string>
+#include <iostream>
 
 struct SenselFinger {
     int _id;
@@ -49,8 +50,12 @@ public:
     void init(int deviceid, SenselFrameData& curFrame);
     void reset(int deviceid, SenselFrameData& curFrame);
     void track(int deviceid, SenselFrameData& curFrame);
+    void trackVersion1(int deviceid, SenselFrameData& curFrame);
+    void trackVersion2(int deviceid, SenselFrameData& curFrame);
     std::string toString();
+    std::string toString2();
     void setOrientation(DEVICE_ORIEN devOri);
+    std::string outputCurrentAction();
 
 private:
     // we need to support both vertical and horizontal version
@@ -71,6 +76,6 @@ private:
     const int kIdleTime = 10;
     const float kFingerArea = 500;
     DEVICE_ORIEN _deviceOrientation;
-
+    std::string currentAction;
 };
 

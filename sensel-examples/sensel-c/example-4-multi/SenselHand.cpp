@@ -61,47 +61,78 @@ void SenselHand::track(int deviceid, SenselFrameData & curFrame)
 {
     // check the device id first
     if (_isInit && deviceid == _deviceID) {
-        if (curFrame.n_contacts == 0) {
-            std::cout << "idle time: " << _idleCount << "\n";
-            reset(deviceid, curFrame);
-            return;
-        }
-        for (int i = 0; i < curFrame.n_contacts; i++) {
-            _idleCount = 0;
-            SenselContact sc = curFrame.contacts[i];
-            // go through the id first
-            //
-            //std::cout << "id" << _fingers[0]._id << "\n";
-            //bool sameid = false;
-            //for (int j = 0; j < 5; j++) {
-            //    if (sc.id == _fingers[j]._id) {
-            //        // they must be the same contact
-            //        // update the fields directly
-            //        _fingers[j] = sc;
-            //        sameid = true;
-            //        break;
-            //    }
-            //}
-            //if (!sameid) {
-                // failed to find the contact with the same id
-                // use x and y pos
-                for (int j = 0; j < 5; j++) {
-                    float dis = pow((sc.x_pos - _fingers[j]._pos_x), 2) + pow(sc.y_pos - _fingers[j]._pos_y, 2);
-                    //std::cout << "dis " << dis << "\n";
-                    if (pow((sc.x_pos - _fingers[j]._pos_x),2) + pow(sc.y_pos-_fingers[j]._pos_y,2) < kDisThres) {
-                        // they are supposed to be the same contact
-                        // update the fields directly
-                        _fingers[j] = sc;
-                        break;
-                    }
-                }
-            //}
-        }
+        // first mode, we want to put the hands on the device all the time
+        // but it is not comfortable
+        //trackVersion1(deviceid, curFrame);
+        //
+        trackVersion2(deviceid, curFrame);
     }
     // print the current indice
     //for (int j = 0; j < 5; j++) {
     //    std::cout << "\t" << j << ":" << _fingers[j]._total_force;
     //}
+}
+
+void SenselHand::trackVersion1(int deviceid, SenselFrameData & curFrame)
+{
+    if (curFrame.n_contacts == 0) {
+        std::cout << "idle time: " << _idleCount << "\n";
+        reset(deviceid, curFrame);
+        return;
+    }
+    for (int i = 0; i < curFrame.n_contacts; i++) {
+        _idleCount = 0;
+        SenselContact sc = curFrame.contacts[i];
+        // go through the id first
+        // failed to find the contact with the same id
+        // use x and y pos
+        for (int j = 0; j < 5; j++) {
+            float dis = pow((sc.x_pos - _fingers[j]._pos_x), 2) + pow(sc.y_pos - _fingers[j]._pos_y, 2);
+            //std::cout << "dis " << dis << "\n";
+            if (pow((sc.x_pos - _fingers[j]._pos_x), 2) + pow(sc.y_pos - _fingers[j]._pos_y, 2) < kDisThres) {
+                // they are supposed to be the same contact
+                // update the fields directly
+                _fingers[j] = sc;
+                break;
+            }
+        }
+    }
+}
+
+void SenselHand::trackVersion2(int deviceid, SenselFrameData & curFrame)
+{
+    // 0.1 only continue when there is one contact
+    // 0.2 filter noise if there are more than 1 contacts
+    if (curFrame.n_contacts == 10) {
+        std::cout << "idle time: " << _idleCount << "\n";
+        reset(deviceid, curFrame);
+        return;
+    }
+    for (int j = 0; j < 5; j++) {
+        _fingers[j]._total_force = 0;
+    }
+    if (curFrame.n_contacts == 1) {
+        // figure out which finger it is
+        SenselContact sc = curFrame.contacts[0];
+        // go through the id first
+        // failed to find the contact with the same id
+        // use x and y pos
+        float minDis = 9999;
+        int fingerIndex = 0;
+        for (int j = 0; j < 5; j++) {
+            float dis = pow((sc.x_pos - _fingers[j]._pos_x), 2) + pow(sc.y_pos - _fingers[j]._pos_y, 2);
+            //std::cout << "dis " << dis << "\n";
+            if (dis < minDis) {
+                // they are supposed to be the same contact
+                // update the fields directly
+                minDis = dis;
+                fingerIndex = j;
+            }
+        }
+        _fingers[fingerIndex] = sc;
+        // send out press down
+        //currentAction = kMapping[_direction == "L" ? fingerIndex : fingerIndex + 5];
+    }
 }
 
 std::string SenselHand::toString()
@@ -152,9 +183,65 @@ std::string SenselHand::toString()
     return str;
 }
 
+std::string SenselHand::toString2()
+{
+    if (!_isInit)
+        return "";
+    // check the largest one, usually we only support one key at a time. if it is larger than 100, then it is a key down event
+    // if all of them reaches smaller than 50, that is a key up
+    // if another key down event happens before a key up
+    // we send two events at the same time
+    KeyEvent prevEvent = _curEvent;
+    _curEvent.type = "N";
+    std::string str;
+
+    int maxforce = _fingers[0]._total_force;
+    int downindex = 0;
+    for (int i = 1; i < 5; i++) {
+        if (_fingers[i]._total_force > maxforce) {
+            maxforce = _fingers[i]._total_force;
+            downindex = i;
+        }
+    }
+    if (maxforce > 0) {
+        _curEvent = KeyEvent("D", kMapping[_direction == "L" ? downindex : downindex + 5]);
+    }
+    else {
+        _curEvent = KeyEvent("U", prevEvent.key);
+    }
+
+    // D D
+    if (prevEvent.type == "D" && _curEvent.type == "D") {
+        if (prevEvent.key != _curEvent.key) {
+            str = "U " + std::string(1, prevEvent.key) + " D " + std::string(1, _curEvent.key);
+            std::cout << str << "\n";
+            str = std::string(1, _curEvent.key);
+        }
+    }
+    else if (prevEvent.type == "D" && _curEvent.type == "U") {
+        str = "U " + std::string(1, prevEvent.key);
+        std::cout << str << "\n";
+        str = "";
+    }
+    else if (prevEvent.type != "D" && _curEvent.type == "D") {
+        str = "D " + std::string(1, _curEvent.key);
+        std::cout << str << "\n";
+        str = std::string(1, _curEvent.key);
+    }
+    return str;
+}
+
 void SenselHand::setOrientation(DEVICE_ORIEN devOri)
 {
     _deviceOrientation = devOri;
+}
+
+std::string SenselHand::outputCurrentAction() { 
+    if(currentAction != "")
+        std::cout << currentAction << "\n";  
+    std::string ret = currentAction;
+    currentAction = "";
+    return ret; 
 }
 
 void SenselHand::sortFingers()

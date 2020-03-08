@@ -55,8 +55,8 @@ static bool enter_pressed = false;
 int main(int argc, char **argv)
 {
     SenselHand* myHand = new SenselHand[2];
-    myHand[0].setOrientation(DEVICE_ORIEN::vertical);
-    myHand[1].setOrientation(DEVICE_ORIEN::vertical);
+    //myHand[0].setOrientation(DEVICE_ORIEN::vertical);
+    //myHand[1].setOrientation(DEVICE_ORIEN::vertical);
 
 	//Handle that references a Sensel device
 	SENSEL_HANDLE handle[SENSEL_MAX_DEVICES] = { NULL };
@@ -164,12 +164,12 @@ int main(int argc, char **argv)
                 //}
                 
 			}
-            std::string curHandMsg = myHand[i].toString();
+            std::string curHandMsg = myHand[i].toString2();            
             msg = curHandMsg == "" ? msg : curHandMsg;
 		}
             
         test->showImage();
-        tcpSendMsg(msg);
+        //tcpSendMsg(msg);
 	}
     tcpClose();
 	return 0;
