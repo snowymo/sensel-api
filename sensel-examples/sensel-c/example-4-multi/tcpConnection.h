@@ -21,7 +21,18 @@
 
 extern WSADATA wsaData;
 extern SOCKET ConnectSocket;
+extern SOCKET ListenSocket;
+extern SOCKET ClientSocket;
 
+enum TCPMode
+{
+    Client,
+    Server
+};
+
+int tcpSetup(TCPMode tcpMode);
 int tcpClientSetup();
-int tcpSendMsg(std::string msg = "");
-int tcpClose();
+int tcpServerSetup();
+int tcpSendMsg(TCPMode tcpMode, std::string msg = "");
+int tcpClose(TCPMode tcpMode);
+int tcpListen();

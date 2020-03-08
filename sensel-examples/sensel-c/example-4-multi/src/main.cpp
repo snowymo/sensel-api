@@ -41,6 +41,8 @@
 static const char* CONTACT_STATE_STRING[] = { "CONTACT_INVALID","CONTACT_START", "CONTACT_MOVE", "CONTACT_END" };
 static bool enter_pressed = false;
 
+TCPMode tcpMode = TCPMode::Server;
+
 //#ifdef WIN32
 //static DWORD WINAPI waitForEnter()
 //#else
@@ -54,6 +56,10 @@ static bool enter_pressed = false;
 
 int main(int argc, char **argv)
 {
+    tcpSetup(tcpMode);
+    if (tcpMode == TCPMode::Server)
+        tcpListen();
+
     SenselHand* myHand = new SenselHand[2];
     //myHand[0].setOrientation(DEVICE_ORIEN::vertical);
     //myHand[1].setOrientation(DEVICE_ORIEN::vertical);
@@ -77,7 +83,7 @@ int main(int argc, char **argv)
 
     SenselSensorInfo *info = new SenselSensorInfo;
     SenselOpenCV* test = new SenselOpenCV;
-    tcpClientSetup();
+    
 	//Open all Sensel devices by the id in the SenselDeviceList, handle initialized 
 	for (int i = 0; i < list.num_devices; i++) {
 		senselOpenDeviceByID(&handle[i], list.devices[i].idx);
@@ -169,8 +175,8 @@ int main(int argc, char **argv)
 		}
             
         test->showImage();
-        //tcpSendMsg(msg);
+        tcpSendMsg(tcpMode, msg);
 	}
-    tcpClose();
+    tcpClose(tcpMode);
 	return 0;
 }
