@@ -18,7 +18,7 @@ SenselHand::~SenselHand()
 void SenselHand::init(int deviceid, SenselFrameData & curFrame)
 {
     // treat only fingers as reasonable fingers
-    if (!_isInit && curFrame.n_contacts >= 5) {
+    if (!_isInit || curFrame.n_contacts >= 5) {
         int nFinger = 0;
         std::vector<int> indices;
         for (int i = 0; i < curFrame.n_contacts; i++) {
