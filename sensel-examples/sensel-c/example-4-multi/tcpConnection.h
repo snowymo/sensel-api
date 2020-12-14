@@ -30,6 +30,7 @@ enum TCPMode
     Server
 };
 
+extern bool isTcpSetup;
 int tcpSetup(TCPMode tcpMode);
 int tcpClientSetup();
 int tcpServerSetup();

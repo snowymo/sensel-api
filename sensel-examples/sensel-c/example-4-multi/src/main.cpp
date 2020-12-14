@@ -56,9 +56,9 @@ TCPMode tcpMode = TCPMode::Server;
 
 int main(int argc, char **argv)
 {
-    tcpSetup(tcpMode);
-    if (tcpMode == TCPMode::Server)
-        tcpListen();
+	tcpSetup(tcpMode);
+	if (tcpMode == TCPMode::Server)
+		tcpListen();
 
     SenselHand* myHand = new SenselHand[2];
     //myHand[0].setOrientation(DEVICE_ORIEN::vertical);
@@ -175,7 +175,9 @@ int main(int argc, char **argv)
 		}
             
         test->showImage();
-        tcpSendMsg(tcpMode, msg);
+		if (list.num_devices == 2 && myHand[0].isReset && myHand[1].isReset) {
+			tcpSendMsg(tcpMode, msg);			
+		}		
 	}
     tcpClose(tcpMode);
 	return 0;

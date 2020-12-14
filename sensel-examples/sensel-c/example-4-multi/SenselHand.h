@@ -77,5 +77,8 @@ private:
     const float kFingerArea = 500;
     DEVICE_ORIEN _deviceOrientation;
     std::string currentAction;
+
+public:
+    bool isReset = false;
 };
 

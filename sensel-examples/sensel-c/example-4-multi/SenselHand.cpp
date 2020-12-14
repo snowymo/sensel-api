@@ -103,11 +103,13 @@ void SenselHand::trackVersion2(int deviceid, SenselFrameData & curFrame)
 {
     // 0.1 only continue when there is one contact
     // 0.2 filter noise if there are more than 1 contacts
-    if (curFrame.n_contacts == 10) {
+    if (curFrame.n_contacts == 5) {
         std::cout << "idle time: " << _idleCount << "\n";
         reset(deviceid, curFrame);
+        isReset = true;
+        _curEvent.type = "R";
         return;
-    }
+    } 
     for (int j = 0; j < 5; j++) {
         _fingers[j]._total_force = 0;
     }
@@ -223,7 +225,7 @@ std::string SenselHand::toString2()
         std::cout << str << "\n";
         str = "";
     }
-    else if (prevEvent.type != "D" && _curEvent.type == "D") {
+    else if (prevEvent.type == "U" && _curEvent.type == "D") {
         str = "D " + std::string(1, _curEvent.key);
         std::cout << str << "\n";
         str = std::string(1, _curEvent.key);

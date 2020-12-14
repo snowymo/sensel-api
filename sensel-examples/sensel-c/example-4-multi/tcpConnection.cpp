@@ -6,6 +6,8 @@ SOCKET ConnectSocket;
 SOCKET ListenSocket;
 SOCKET ClientSocket;
 
+//isSetup = false;
+
 int tcpSetup(TCPMode tcpMode)
 {
     if (tcpMode == TCPMode::Client) {
@@ -222,7 +224,10 @@ int tcpClose(TCPMode tcpMode)
 
 int tcpListen()
 {
-    // only for server
+    // only for serer
+    if (isTcpSetup) {
+        return 0;
+    }
     char recvbuf[DEFAULT_BUFLEN];
     int recvbuflen = DEFAULT_BUFLEN;
     int iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
@@ -242,5 +247,8 @@ int tcpListen()
         WSACleanup();
         return 1;
     }
+    isTcpSetup = true;
     return 0;
 }
+
+bool isTcpSetup = false;
